@@ -29,7 +29,8 @@ class _Header(LittleEndianStructure):
 
 class Header(Union):
     """
-    >>> h = Header()
+    >>> import lifx
+    >>> h = lifx.lan.Header()
     >>> h.bytes[0] = 0x31
     >>> h.bytes[3] = 0x34
     >>> h.bytes[32] = 0x66
@@ -39,7 +40,7 @@ class Header(Union):
     1024
     >>> h.field.type
     102
-    >>> h.field.type = Header.State.echo_request
+    >>> h.field.type = lifx.lan.Header.State.echo_request
     >>> h.field.type
     58
     """
@@ -93,7 +94,12 @@ class Header(Union):
         state_multi_zone = 506
 
     @property
-    def type(self):
+    def type(self) -> 'lifx.lan.Header.State':
+        """
+        Get type of state
+
+        :return: lifx.lan.header.State
+        """
         try:
             state = self.State(self.field.type)
         except ValueError as e:
@@ -102,17 +108,28 @@ class Header(Union):
         return state
 
     @type.setter
-    def type(self, value):
+    def type(self, value: 'lifx.lan.Header.State'):
+        """
+        Set type of state
+
+        :param value: lifx.lan.header.State
+        """
         self.field.type = value
 
     def __str__(self):
         return "Lifx Header type {}".format(self.field.type)
 
 
-def make(state):
+def make(state: str) -> 'lifx.lan.Header':
+    """
+    Make a lifx.lan.Header given a State string representation
+
+    :param state: a state string representation
+    :return: lifx.lan.Header
+    """
     header = Header()
     header.type = Header.State[state]
     header.field.tagged = 1
     header.field.addressable = 1
-    header.field.res_required = 1
+    header.field.ack_required = 1
     return header

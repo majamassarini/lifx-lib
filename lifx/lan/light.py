@@ -1,8 +1,10 @@
 import sys
 import inspect
 import colorsys
+
 from enum import IntEnum
 from ctypes import c_uint8, c_uint32, c_float, c_uint16, c_int16, c_uint64, LittleEndianStructure, Union
+from typing import Dict, Union as TUnion
 
 
 class GetService(LittleEndianStructure):
@@ -48,13 +50,14 @@ class StateService(LittleEndianStructure):
         self.field.port = value
 
     def __str__(self):
-        return "StateService -> service: {}, port: {}".format(self.service,
-                                                              self.port)
+        return "StateService {{service: {}, port: {}}}".format(self.service,
+                                                               self.port)
 
 
 class HSBK(LittleEndianStructure):
     """
-    >>> hsbk = HSBK()
+    >>> import lifx
+    >>> hsbk = lifx.lan.light.HSBK()
     >>> hsbk.hue = 32369
     >>> hsbk.saturation = 19660
     >>> hsbk.brightness = 22281
@@ -170,7 +173,8 @@ class _State(LittleEndianStructure):
 
 class State(Color):
     """
-    >>> body = State()
+    >>> import lifx
+    >>> body = lifx.lan.light.State()
     >>> body.rgb = (0, 255, 0)
     >>> body.field.color.rgb
     (0, 255, 0)
@@ -238,9 +242,9 @@ class State(Color):
 
     def __str__(self):
         color = super(State, self).__str__()
-        return "State -> power: {}, {}, label: {}".format(self.power,
-                                                          color,
-                                                          self.label)
+        return "State {{power: {}, {}, label: {}}}".format(self.power,
+                                                           color,
+                                                           self.label)
 
 
 class _SetColor(LittleEndianStructure):
@@ -254,7 +258,8 @@ class _SetColor(LittleEndianStructure):
 
 class SetColor(Color):
     """
-    >>> body = SetColor()
+    >>> import lifx
+    >>> body = lifx.lan.light.SetColor()
     >>> body.rgb = (0, 255, 0)
     >>> body.field.color.rgb
     (0, 255, 0)
@@ -282,7 +287,7 @@ class SetColor(Color):
 
     def __str__(self):
         color = super(SetColor, self).__str__()
-        return "SetColor -> {}, duration: {}".format(color, self.duration)
+        return "SetColor {{{}, duration: {}}}".format(color, self.duration)
 
 
 class _SetWaveform(LittleEndianStructure):
@@ -300,7 +305,8 @@ class _SetWaveform(LittleEndianStructure):
 
 class SetWaveform(Color):
     """
-    >>> body = SetWaveform()
+    >>> import lifx
+    >>> body = lifx.lan.light.SetWaveform()
     >>> body.rgb = (0, 255, 0)
     >>> body.field.color.rgb
     (0, 255, 0)
@@ -334,7 +340,7 @@ class SetWaveform(Color):
     class Waveform(IntEnum):
         saw = 0,
         sine = 1,
-        half_sine = 2,
+        halfsine = 2,
         triangle = 3,
         pulse = 4,
 
@@ -385,28 +391,12 @@ class SetWaveform(Color):
 
     def __str__(self):
         color = super(SetWaveform, self).__str__()
-        return "SetWaveform -> {}, transient: {}, period: {}, cycles: {}," \
-               "skew_ratio {}, waveform {}".format(color, self.transient, self.period, self.cycles,
-                                                   self.skew_ratio, self.waveform)
+        return "SetWaveform {{{}, transient: {}, period: {}, cycles: {}, skew_ratio {}, waveform {}}}".format(
+            color, self.transient, self.period, self.cycles,
+            self.skew_ratio, self.waveform)
 
 
-class GetPower(LittleEndianStructure):
-
-    _fields_ = []
-
-    state = "get_power_light"
-
-    def __str__(self):
-        return "GetPower"
-
-
-class Power(LittleEndianStructure):
-
-    _pack_ = 1
-    _fields_ = [
-        ('level', c_uint16),
-        ('port', c_uint32),
-    ]
+class Power:
 
     @property
     def level(self):
@@ -420,42 +410,81 @@ class Power(LittleEndianStructure):
         return "level: {}".format(self.level)
 
 
-class SetPower(Power):
+class GetPower(LittleEndianStructure):
 
+    _fields_ = []
+
+    state = "get_power_light"
+
+    def __str__(self):
+        return "GetPower"
+
+
+class _SetPower(LittleEndianStructure):
+
+        _pack_ = 1
+        _fields_ = [
+            ('level', c_uint16),
+        ]
+
+
+class SetPower(Power, Union):
+
+    ON = 65535
+    OFF = 0
     state = "set_power_light"
 
     _fields_ = [
-        ('field', Power),
+        ('field', _SetPower),
         ('bytes', c_uint8 * 52)]
 
     def __str__(self):
         level = super(SetPower, self).__str__()
-        return "SetPower -> {}".format(level)
+        return "SetPower {{{}}}".format(level)
 
 
-class StatePower(Power):
+class _StatePower(LittleEndianStructure):
 
+    _pack_ = 1
+    _fields_ = [
+        ('level', c_uint16),
+        ('port', c_uint32),
+    ]
+
+
+class StatePower(Power, Union):
+
+    ON = 65535
+    OFF = 0
     state = "state_power_light"
 
     _fields_ = [
-        ('field', Power),
+        ('field', _StatePower),
         ('bytes', c_uint8 * 52)]
 
     def __str__(self):
         level = super(StatePower, self).__str__()
-        return "StatePower -> {}".format(level)
-
-
+        return "StatePower {{{}}}".format(level)
 
 
 class State_Factory(object):
 
-    def make(self, state, fields_values):
+    @staticmethod
+    def make(state: str, fields_values: Dict) -> TUnion['lifx.lan.light.SetColor',
+                                                        'lifx.lan.light.SetWaveform',
+                                                        'lifx.lan.light.SetPower',
+                                                        'lifx.lan.light.GetPower',
+                                                        'lifx.lan.light.GetService',
+                                                        'lifx.lan.light.StateService',
+                                                        'lifx.lan.light.State']:
         """
-        @param state: string
-        @param fields_values: dictionary of default field values
+        Make a Lifx Msg given a dictionary of values
 
-        >>> factory = State_Factory()
+        :param state: a string representation of a Lifx State
+        :param fields_values: a dictionary of values for the State
+
+        >>> import lifx
+        >>> factory = lifx.lan.light.State_Factory()
         >>> state = factory.make("SetColor", {"rgb": (20, 20, 20), "kelvin": 3500, "duration": 1024})
         >>> state.rgb
         (20, 20, 20)
@@ -481,12 +510,20 @@ class State_Factory(object):
 class Description_Factory(object):
 
     @staticmethod
-    def make(state):
+    def make(state: TUnion['lifx.lan.light.SetColor',
+                           'lifx.lan.light.SetWaveform',
+                           'lifx.lan.light.SetPower',
+                           'lifx.lan.light.GetPower',
+                           'lifx.lan.light.GetService',
+                           'lifx.lan.light.StateService',
+                           'lifx.lan.light.State']) -> Dict:
         """
-        @param dpt: a dpt
+        :param state: a list of bytes to be interpreted as a state
+        :return a dict
 
-        >>> factory = Description_Factory()
-        >>> color = SetColor()
+        >>> import lifx
+        >>> factory = lifx.lan.light.Description_Factory()
+        >>> color = lifx.lan.light.SetColor()
         >>> s = factory.make(color)
         >>> s[1]['rgb'] = (0, 0, 0)
         >>> s[1]['kelvin'] = 0
