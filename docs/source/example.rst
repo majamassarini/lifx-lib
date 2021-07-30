@@ -9,9 +9,9 @@ Encode
     >>> import lifx
     >>> body = lifx.lan.light.SetColor()
     >>> header = lifx.lan.header.make(body.state)
-    >>> body.field.color.rgb = (0, 255, 0)
-    >>> body.field.color.kelvin = 3500
-    >>> body.field.duration = 1024
+    >>> body.rgb = (0, 255, 0)
+    >>> body.kelvin = 3500
+    >>> body.duration = 1024
     >>> msg = lifx.lan.Msg.encode(header, body)
     >>> msg
     [0x31, 0x00, 0x00, 0x34, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x66, 0x00, 0x00, 0x00, 0x00, 0x55, 0x55, 0xFF, 0xFF, 0xFF, 0xFE, 0xAC, 0x0D, 0x00, 0x04, 0x00, 0x00]
@@ -40,9 +40,9 @@ Decode
     >>> (header, body) = msg.decode()
     >>> header.type
     <State.state_light: 107>
-    >>> body.field.color.kelvin
+    >>> body.kelvin
     3500
-    >>> body.field.color.rgb
+    >>> body.rgb
     (61, 87, 86)
     >>> str(body)
     'State {power: 65535, hue: 178, saturation: 30, brightness: 34, kelvin: 3500, rgb: (61, 87, 86), label: LIFX Bulb 121af1}'

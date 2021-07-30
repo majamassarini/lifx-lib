@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.com/majamassarini/lifx-lib.svg?branch=master)](https://travis-ci.com/majamassarini/lifx-lib)
 [![codecov](https://codecov.io/gh/majamassarini/lifx-lib/branch/master/graph/badge.svg?token=HQ27JK26MT)](https://codecov.io/gh/majamassarini/lifx-lib)
-[![Documentation Status](https://readthedocs.com/projects/maja-massarini-lifx-lib/badge/?version=latest&token=82eba0358e38aea5fcc884f3eca6ad7df3384bd95b77a341ef816968ce9b7323)](https://maja-massarini-lifx-lib.readthedocs-hosted.com/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.com/projects/maja-massarini-lifx-lib/badge/?version=latest)](https://maja-massarini-lifx-lib.readthedocs-hosted.com/en/latest/?badge=latest)
 
 A Python 3 library able to encode/decode Lifx (lan) messages.
 
@@ -15,9 +15,9 @@ It can be used with an asynchronous or synchronous client.
     >>> import lifx
     >>> body = lifx.lan.light.SetColor()
     >>> header = lifx.lan.header.make(body.state)
-    >>> body.field.color.rgb = (0, 255, 0)
-    >>> body.field.color.kelvin = 3500
-    >>> body.field.duration = 1024
+    >>> body.rgb = (0, 255, 0)
+    >>> body.kelvin = 3500
+    >>> body.duration = 1024
     >>> msg = lifx.lan.Msg.encode(header, body)
     >>> msg
     [0x31, 0x00, 0x00, 0x34, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x66, 0x00, 0x00, 0x00, 0x00, 0x55, 0x55, 0xFF, 0xFF, 0xFF, 0xFE, 0xAC, 0x0D, 0x00, 0x04, 0x00, 0x00]
@@ -44,9 +44,9 @@ It can be used with an asynchronous or synchronous client.
     >>> (header, body) = msg.decode()
     >>> header.type
     <State.state_light: 107>
-    >>> body.field.color.kelvin
+    >>> body.kelvin
     3500
-    >>> body.field.color.rgb
+    >>> body.rgb
     (61, 87, 86)
     >>> str(body)
     'State {power: 65535, hue: 178, saturation: 30, brightness: 34, kelvin: 3500, rgb: (61, 87, 86), label: LIFX Bulb 121af1}'
