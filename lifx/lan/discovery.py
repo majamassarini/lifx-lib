@@ -53,7 +53,7 @@ class Discovery(asyncio.DatagramProtocol):
         self._loop.call_later(5, self.broadcast)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
     handler = logging.StreamHandler(sys.stdout)
@@ -61,7 +61,8 @@ if __name__ == '__main__':
 
     loop = asyncio.get_event_loop()
     coro = loop.create_datagram_endpoint(
-        lambda: Discovery(('255.255.255.255', 56700)), local_addr=('0.0.0.0', 56700))
+        lambda: Discovery(("255.255.255.255", 56700)), local_addr=("0.0.0.0", 56700)
+    )
     loop.run_until_complete(coro)
     loop.run_forever()
     loop.close()

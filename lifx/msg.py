@@ -4,8 +4,9 @@ from ctypes import c_uint8, LittleEndianStructure, Union
 
 
 class Msg(abc.ABC, list):
-
-    def __init__(self, octects: Iterable['lifx.Octect'], addr: str = None, port: int = None):
+    def __init__(
+        self, octects: Iterable["lifx.Octect"], addr: str = None, port: int = None
+    ):
         """
         A list of lifx.Octect optionally linked to a IP (addr, port)
 
@@ -18,7 +19,7 @@ class Msg(abc.ABC, list):
         self._port = port
 
     @classmethod
-    def from_string(cls, s: str, addr: str = None, port: int = None) -> 'lifx.Msg':
+    def from_string(cls, s: str, addr: str = None, port: int = None) -> "lifx.Msg":
         """
         >>> import lifx
         >>> s = "310000340000000000000000000000000000000000000000000000000000000066000000005555FFFFFFFFAC0D00040000"
@@ -39,13 +40,24 @@ class Msg(abc.ABC, list):
         :param port: an IP port bound to this message
         :return: a lifx.Msg
         """
-        high_nibbles = [int(nibble, 16) for index, nibble in enumerate(s) if not index % 2]
+        high_nibbles = [
+            int(nibble, 16) for index, nibble in enumerate(s) if not index % 2
+        ]
         low_nibbles = [int(nibble, 16) for index, nibble in enumerate(s) if index % 2]
-        return cls(map(lambda high_nibble, low_nibble: Octect(Nibbles(high=high_nibble, low=low_nibble)), high_nibbles, low_nibbles),
-                   addr=addr, port=port)
+        return cls(
+            map(
+                lambda high_nibble, low_nibble: Octect(
+                    Nibbles(high=high_nibble, low=low_nibble)
+                ),
+                high_nibbles,
+                low_nibbles,
+            ),
+            addr=addr,
+            port=port,
+        )
 
     @classmethod
-    def from_bytes(cls, byts: bytes, addr: str = None, port: int = None) -> 'lifx.Msg':
+    def from_bytes(cls, byts: bytes, addr: str = None, port: int = None) -> "lifx.Msg":
         """
         >>> import lifx
         >>> bts = bytes([0xFF, 0xFE, 0xFD])
@@ -70,7 +82,9 @@ class Msg(abc.ABC, list):
 
     @classmethod
     @abc.abstractmethod
-    def encode(cls, header: 'lifx.Msg', body: 'lifx.Msg', addr: str = None, port: int = None) -> 'lifx.Msg':
+    def encode(
+        cls, header: "lifx.Msg", body: "lifx.Msg", addr: str = None, port: int = None
+    ) -> "lifx.Msg":
         ...
 
     @abc.abstractmethod
@@ -90,8 +104,7 @@ class Msg(abc.ABC, list):
 
 
 class Nibbles(LittleEndianStructure):
-    _fields_ = [('low', c_uint8, 4),
-                ('high', c_uint8, 4)]
+    _fields_ = [("low", c_uint8, 4), ("high", c_uint8, 4)]
 
 
 class Octect(Union):
@@ -102,8 +115,7 @@ class Octect(Union):
     >>> o = Octect(value=45)
     """
 
-    _fields_ = [('nibble', Nibbles),
-                ('value', c_uint8)]
+    _fields_ = [("nibble", Nibbles), ("value", c_uint8)]
 
     def __repr__(self, *args, **kwargs):
         return "0x%02X" % self.value

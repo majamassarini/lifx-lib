@@ -80,10 +80,8 @@ class Client(asyncio.DatagramProtocol):
         for task in self._tasks:
             self._loop.create_task(task(msg))
 
-    async def write(self, msgs: Iterable['lifx.Msg']):
+    async def write(self, msgs: Iterable["lifx.Msg"]):
         for msg in msgs:
             data = bytes(msg)
             self._transport.sendto(data, (msg.addr, msg.port))
             await asyncio.sleep(1)
-
-

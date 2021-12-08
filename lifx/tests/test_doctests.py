@@ -8,7 +8,7 @@ tests.append(doctest.DocTestSuite(lifx.lan.header))
 tests.append(doctest.DocTestSuite(lifx.lan.light))
 tests.append(doctest.DocTestSuite(lifx.lan.msg))
 
-tests.append(doctest.DocFileSuite('../docs/source/example.rst', package=lifx))
+tests.append(doctest.DocFileSuite("../docs/source/example.rst", package=lifx))
 
 
 def load_tests(loader, suite, ignore):

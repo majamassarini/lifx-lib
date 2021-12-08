@@ -23,12 +23,19 @@ class Msg(Parent):
     """
 
     @classmethod
-    def encode(cls, header: 'lifx.lan.Header', body: Union[light.GetService,
-                                                           light.SetPower,
-                                                           light.GetPower,
-                                                           light.SetColor,
-                                                           light.SetWaveform], addr: str = None, port: int = None) -> \
-            'lifx.lan.Msg':
+    def encode(
+        cls,
+        header: "lifx.lan.Header",
+        body: Union[
+            light.GetService,
+            light.SetPower,
+            light.GetPower,
+            light.SetColor,
+            light.SetWaveform,
+        ],
+        addr: str = None,
+        port: int = None,
+    ) -> "lifx.lan.Msg":
         """
         >>> import lifx
         >>> header = lifx.lan.header.make("set_color_light")
@@ -46,25 +53,25 @@ class Msg(Parent):
         :param port: an ip port to associate the message with
         :return: a lifx.lan.Msg
         """
-        l = []
+        lfx = []
         header.field.protocol = 1024
         for byte in header.bytes:
             octect = Octect()
             octect.value = byte
-            l.append(octect)
+            lfx.append(octect)
         if body and hasattr(body, "bytes"):
             for byte in body.bytes:
                 octect = Octect()
                 octect.value = byte
-                l.append(octect)
+                lfx.append(octect)
         size = Octect()
-        size.value = len(l)
-        l[0] = size
-        return cls(l, addr=addr, port=port)
+        size.value = len(lfx)
+        lfx[0] = size
+        return cls(lfx, addr=addr, port=port)
 
-    def decode(self) -> Tuple[Header, Union[light.StateService,
-                                            light.StatePower,
-                                            light.State]]:
+    def decode(
+        self,
+    ) -> Tuple[Header, Union[light.StateService, light.StatePower, light.State]]:
         """
         >>> import lifx
         >>> s = "310000340000000000000000000000000000000000000000000000000000000066000000005555FFFFFFFFAC0D00040000"
