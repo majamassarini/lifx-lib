@@ -6,7 +6,7 @@ with open(path.join(".", 'README.md'), encoding='utf-8') as f:
       long_description = f.read()
 
 setup(name="lifx-lib",
-      version="0.9",
+      version="0.9.1",
       description="A python3 library able to encode/decode Lifx (lan) messages",
       url="https://github.com/majamassarini/lifx-lib",
       long_description=long_description,
