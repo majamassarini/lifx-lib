@@ -42,7 +42,7 @@ Summary:        %{summary}
 %{python3} -m unittest
 
 %files -n python3-%{pypi_name}
-%license COPYING
+%license LICENSE
 %doc README.md
 %{python3_sitelib}/knx_stack-%{version}.dist-info/
 %{python3_sitelib}/knx_stack
