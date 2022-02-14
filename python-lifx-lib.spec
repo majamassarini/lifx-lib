@@ -44,8 +44,8 @@ Summary:        %{summary}
 %files -n python3-%{pypi_name}
 %license LICENSE
 %doc README.md
-%{python3_sitelib}/knx_stack-%{version}.dist-info/
-%{python3_sitelib}/knx_stack
+%{python3_sitelib}/lifx_lib-%{version}.dist-info/
+%{python3_sitelib}/lifx_lib
 
 %changelog
 %autochangelog
