@@ -44,7 +44,7 @@ Summary:        %{summary}
 %files -n python3-%{pypi_name}
 %license LICENSE
 %doc README.md
-%{python3_sitelib}/lifx-%{version}.dist-info/
+%{python3_sitelib}/lifx_lib-%{version}.dist-info/
 %{python3_sitelib}/lifx
 
 %changelog
