@@ -78,7 +78,7 @@ class Client(asyncio.DatagramProtocol):
         msg = Msg.from_bytes(data, addr=addr[0], port=addr[1])
         self.logger.info("read    {}".format(str(msg)))
         for task in self._tasks:
-            self._loop.create_task(task(msg))
+            self._loop.create_task(task(msg), name="Lifx datagram received {}".format(str(msg)))
 
     async def write(self, msgs: Iterable["lifx.Msg"]):
         for msg in msgs:
