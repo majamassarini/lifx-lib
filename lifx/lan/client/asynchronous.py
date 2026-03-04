@@ -1,7 +1,8 @@
 import asyncio
 import logging
 
-from typing import Iterable, Tuple, Any
+from collections.abc import Iterable
+from typing import Any
 from lifx.lan import Msg
 
 
@@ -29,12 +30,13 @@ class Client(asyncio.DatagramProtocol):
         >>>
         >>>
         >>> async def create_datagram_endpoint():
-        ...     loop_ = asyncio.get_event_loop()
+        ...     loop_ = asyncio.get_running_loop()
         ...     transport_, protocol_ = await loop_.create_datagram_endpoint(lambda: Client([process_responses]),
         ...                                                                  local_addr=('0.0.0.0', 56700))
         ...     return transport_, protocol_
         >>>
-        >>> loop = asyncio.get_event_loop()
+        >>> loop = asyncio.new_event_loop()
+        >>> asyncio.set_event_loop(loop)
         >>> transport, protocol = loop.run_until_complete(loop.create_task(create_datagram_endpoint()))
         >>>
         >>> body = lifx.lan.light.SetPower()
@@ -57,7 +59,7 @@ class Client(asyncio.DatagramProtocol):
     """
 
     def __init__(self, tasks: Iterable[Any]):
-        self._loop = asyncio.get_event_loop()
+        self._loop = asyncio.get_running_loop()
         self._transport = None
         self._tasks = tasks
 
@@ -74,11 +76,13 @@ class Client(asyncio.DatagramProtocol):
     def error_received(self, exc):
         self.logger.error("Error received: {}".format(str(exc)))
 
-    def datagram_received(self, data: bytes, addr: Tuple[str, int]) -> None:
+    def datagram_received(self, data: bytes, addr: tuple[str, int]) -> None:
         msg = Msg.from_bytes(data, addr=addr[0], port=addr[1])
         self.logger.info("read    {}".format(str(msg)))
         for task in self._tasks:
-            self._loop.create_task(task(msg), name="Lifx datagram received {}".format(str(msg)))
+            self._loop.create_task(
+                task(msg), name="Lifx datagram received {}".format(str(msg))
+            )
 
     async def write(self, msgs: Iterable["lifx.Msg"]):
         for msg in msgs:
