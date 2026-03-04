@@ -584,7 +584,7 @@ class Description_Factory(object):
     ) -> tuple[str, dict]:
         """
         :param state: a list of bytes to be interpreted as a state
-        :return a dict
+        :return: a tuple of (class-name, field-values dict)
 
         >>> import lifx
         >>> factory = lifx.lan.light.Description_Factory()
