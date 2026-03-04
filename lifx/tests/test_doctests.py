@@ -2,7 +2,6 @@ import unittest
 import doctest
 import lifx
 
-
 tests = list()
 tests.append(doctest.DocTestSuite(lifx.lan.header))
 tests.append(doctest.DocTestSuite(lifx.lan.light))
