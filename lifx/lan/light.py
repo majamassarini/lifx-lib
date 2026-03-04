@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 class GetService(LittleEndianStructure):
     """A LIFX GetService request message with no payload."""
 
-    _fields_: list = []
+    _fields_: list = []  # type: ignore[misc]
 
     state = "get_service"
 
@@ -53,7 +53,7 @@ class StateService(LittleEndianStructure):
         return self.field.service
 
     @service.setter
-    def service(self):
+    def service(self, value):
         self.field.service = 1  # only udp (1) is allowed
 
     @property
@@ -184,7 +184,7 @@ class Color(Union):
 class Get(LittleEndianStructure):
     """A LIFX Get request for the current light state, with no payload."""
 
-    _fields_: list = []
+    _fields_: list = []  # type: ignore[misc]
 
     state = "get_light"
 
@@ -471,7 +471,7 @@ class Power:
 class GetPower(LittleEndianStructure):
     """A LIFX GetPower request message with no payload."""
 
-    _fields_: list = []
+    _fields_: list = []  # type: ignore[misc]
 
     state = "get_power_light"
 
