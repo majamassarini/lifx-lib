@@ -42,6 +42,8 @@ class _Header(LittleEndianStructure):
 
 class Header(Union):
     """
+    A union representing the 36-byte LIFX LAN protocol header.
+
     >>> import lifx
     >>> h = lifx.lan.Header()
     >>> h.bytes[0] = 0x31
@@ -61,6 +63,8 @@ class Header(Union):
     _fields_ = [("bytes", c_uint8 * 36), ("field", _Header)]
 
     class State(IntEnum):
+        """Enumeration of all LIFX LAN protocol message type codes."""
+
         get_service = (2,)
         state_service = (3,)
         get_host_info = (12,)

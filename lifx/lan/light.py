@@ -22,6 +22,7 @@ if TYPE_CHECKING:
 
 
 class GetService(LittleEndianStructure):
+    """A LIFX GetService request message with no payload."""
 
     _fields_: list = []
 
@@ -40,6 +41,7 @@ class _StateService(LittleEndianStructure):
 
 
 class StateService(LittleEndianStructure):
+    """A LIFX StateService response containing the service type and port."""
 
     state = "state_service"
 
@@ -47,6 +49,7 @@ class StateService(LittleEndianStructure):
 
     @property
     def service(self):
+        """The service type (only UDP/1 is supported)."""
         return self.field.service
 
     @service.setter
@@ -55,6 +58,7 @@ class StateService(LittleEndianStructure):
 
     @property
     def port(self):
+        """The UDP port on which the device is listening."""
         return self.field.port
 
     @port.setter
@@ -69,6 +73,8 @@ class StateService(LittleEndianStructure):
 
 class HSBK(LittleEndianStructure):
     """
+    A LIFX HSBK color value holding hue, saturation, brightness, and kelvin.
+
     >>> import lifx
     >>> hsbk = lifx.lan.light.HSBK()
     >>> hsbk.hue = 32369
@@ -95,6 +101,7 @@ class HSBK(LittleEndianStructure):
 
     @property
     def rgb(self):
+        """Return the color as an (R, G, B) tuple (values 0-256)."""
         (r, g, b) = colorsys.hsv_to_rgb(
             self.hue / 65535, self.saturation / 65535, self.brightness / 65535
         )
@@ -102,6 +109,7 @@ class HSBK(LittleEndianStructure):
 
     @rgb.setter
     def rgb(self, rgb):
+        """Set the color from an (R, G, B) tuple (values 0-256)."""
         (r, g, b) = rgb
         (h, s, v) = colorsys.rgb_to_hsv(r / 256, g / 256, b / 256)
         self.hue = int(h * 65535)
@@ -115,44 +123,56 @@ class HSBK(LittleEndianStructure):
 
 
 class Color(Union):
+    """Base union providing human-scale accessors for an HSBK color field."""
+
     @property
     def kelvin(self):
+        """The color temperature in kelvin."""
         return self.field.color.kelvin
 
     @kelvin.setter
     def kelvin(self, value):
+        """Set the color temperature in kelvin."""
         self.field.color.kelvin = value
 
     @property
     def hue(self):
+        """The hue angle in degrees (0–360)."""
         return round((self.field.color.hue / 65535) * 360)
 
     @hue.setter
     def hue(self, value):
+        """Set the hue from a degree value (0–360)."""
         self.field.color.hue = round(value / 360 * 65535)
 
     @property
     def saturation(self):
+        """The saturation as a percentage (0–100)."""
         return round((self.field.color.saturation / 65535) * 100)
 
     @saturation.setter
     def saturation(self, value):
+        """Set the saturation from a percentage value (0–100)."""
         self.field.color.saturation = round(value / 100 * 65535)
 
     @property
     def brightness(self):
+        """The brightness as a percentage (0–100)."""
         return round((self.field.color.brightness / 65535) * 100)
 
     @brightness.setter
     def brightness(self, value):
+        """Set the brightness from a percentage value (0–100)."""
         self.field.color.brightness = round(value / 100 * 65535)
 
     @property
     def rgb(self):
+        """The color as an (R, G, B) tuple."""
         return self.field.color.rgb
 
     @rgb.setter
     def rgb(self, triple):
+        """Set the color from an (R, G, B) tuple."""
         self.field.color.rgb = triple
 
     def __str__(self):
@@ -162,6 +182,7 @@ class Color(Union):
 
 
 class Get(LittleEndianStructure):
+    """A LIFX Get request for the current light state, with no payload."""
 
     _fields_: list = []
 
@@ -184,6 +205,8 @@ class _State(LittleEndianStructure):
 
 class State(Color):
     """
+    A LIFX StateLight response containing color, power, and label fields.
+
     >>> import lifx
     >>> body = lifx.lan.light.State()
     >>> body.rgb = (0, 255, 0)
@@ -227,14 +250,17 @@ class State(Color):
 
     @property
     def power(self):
+        """The power level of the light (0 = off, 65535 = on)."""
         return self.field.power
 
     @power.setter
     def power(self, value):
+        """Set the power level of the light."""
         self.field.power = value
 
     @property
     def label(self):
+        """The human-readable label of the light, up to 32 UTF-8 characters."""
         lbl = ""
         for i in range(0, 32):
             c = chr(self.field.label[i])
@@ -246,6 +272,7 @@ class State(Color):
 
     @label.setter
     def label(self, value):
+        """Set the light label from a UTF-8 string."""
         for i, byte in enumerate(bytes(value, "utf-8")):
             self.field.label[i] = byte
 
@@ -267,6 +294,8 @@ class _SetColor(LittleEndianStructure):
 
 class SetColor(Color):
     """
+    A LIFX SetColor command containing color and transition duration fields.
+
     >>> import lifx
     >>> body = lifx.lan.light.SetColor()
     >>> body.rgb = (0, 255, 0)
@@ -286,10 +315,12 @@ class SetColor(Color):
 
     @property
     def duration(self):
+        """The color transition duration in milliseconds."""
         return self.field.duration
 
     @duration.setter
     def duration(self, value):
+        """Set the color transition duration in milliseconds."""
         self.field.duration = value
 
     def __str__(self):
@@ -312,6 +343,8 @@ class _SetWaveform(LittleEndianStructure):
 
 class SetWaveform(Color):
     """
+    A LIFX SetWaveform command for animating a light with a periodic waveform.
+
     >>> import lifx
     >>> body = lifx.lan.light.SetWaveform()
     >>> body.rgb = (0, 255, 0)
@@ -345,6 +378,8 @@ class SetWaveform(Color):
     state = "set_waveform_light"
 
     class Waveform(IntEnum):
+        """Enumeration of supported LIFX waveform types."""
+
         saw = (0,)
         sine = (1,)
         halfsine = (2,)
@@ -355,42 +390,52 @@ class SetWaveform(Color):
 
     @property
     def transient(self):
+        """Whether the color returns to its original value after the waveform."""
         return self.field.transient
 
     @transient.setter
     def transient(self, value):
+        """Set whether the color reverts after the waveform completes."""
         self.field.transient = value
 
     @property
     def period(self):
+        """The duration of one waveform cycle in milliseconds."""
         return self.field.period
 
     @period.setter
     def period(self, value):
+        """Set the duration of one waveform cycle in milliseconds."""
         self.field.period = value
 
     @property
     def cycles(self):
+        """The number of waveform cycles to run."""
         return self.field.cycles
 
     @cycles.setter
     def cycles(self, value):
+        """Set the number of waveform cycles to run."""
         self.field.cycles = value
 
     @property
     def skew_ratio(self):
+        """The skew ratio controlling waveform asymmetry (0.0 to 1.0)."""
         return round(self.field.skew_ratio / 65535) + 32768
 
     @skew_ratio.setter
     def skew_ratio(self, value):
+        """Set the skew ratio from a float in the range 0.0 to 1.0."""
         self.field.skew_ratio = round(value * 65535) - 32768
 
     @property
     def waveform(self):
+        """The waveform type as a Waveform enum value."""
         return self.Waveform(self.field.waveform)
 
     @waveform.setter
     def waveform(self, value):
+        """Set the waveform type by name string."""
         value = getattr(self.Waveform, value)
         self.field.waveform = self.Waveform(value)
 
@@ -407,12 +452,16 @@ class SetWaveform(Color):
 
 
 class Power:
+    """Mixin providing a level property for power-related message classes."""
+
     @property
     def level(self):
+        """The power level (0 = off, 65535 = on)."""
         return self.field.level
 
     @level.setter
     def level(self, value):
+        """Set the power level."""
         self.field.level = value
 
     def __str__(self):
@@ -420,6 +469,7 @@ class Power:
 
 
 class GetPower(LittleEndianStructure):
+    """A LIFX GetPower request message with no payload."""
 
     _fields_: list = []
 
@@ -438,6 +488,7 @@ class _SetPower(LittleEndianStructure):
 
 
 class SetPower(Power, Union):
+    """A LIFX SetPower command message to turn the light on or off."""
 
     ON = 65535
     OFF = 0
@@ -460,6 +511,7 @@ class _StatePower(LittleEndianStructure):
 
 
 class StatePower(Power, Union):
+    """A LIFX StatePower response message reporting the current power level."""
 
     ON = 65535
     OFF = 0
@@ -473,6 +525,8 @@ class StatePower(Power, Union):
 
 
 class State_Factory(object):
+    """Factory for creating LIFX light state instances from a name and value dict."""
+
     @staticmethod
     def make(state: str, fields_values: dict) -> TUnion[
         "lifx.lan.light.SetColor",
@@ -514,6 +568,8 @@ class State_Factory(object):
 
 
 class Description_Factory(object):
+    """Factory for extracting a (class-name, field-values) description from a state instance."""
+
     @staticmethod
     def make(
         state: TUnion[

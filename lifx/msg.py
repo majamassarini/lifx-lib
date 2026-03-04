@@ -10,6 +10,8 @@ if TYPE_CHECKING:
 
 
 class Msg(abc.ABC, list):
+    """Abstract base class for a LIFX message represented as a list of Octect values."""
+
     def __init__(
         self,
         octects: Iterable["lifx.Octect"],
@@ -103,29 +105,39 @@ class Msg(abc.ABC, list):
         body: "lifx.Msg",
         addr: str = None,
         port: int = None,
-    ) -> "lifx.Msg": ...
+    ) -> "lifx.Msg":
+        """Encode a header and body into a complete LIFX message."""
+        ...
 
     @abc.abstractmethod
-    def decode(self) -> tuple: ...
+    def decode(self) -> tuple:
+        """Decode this message into a (header, body) tuple."""
+        ...
 
     def __bytes__(self):
         return bytes([octect.value for octect in self])
 
     @property
     def addr(self):
+        """The IP address bound to this message."""
         return self._addr
 
     @property
     def port(self):
+        """The IP port bound to this message."""
         return self._port
 
 
 class Nibbles(LittleEndianStructure):
+    """A little-endian structure holding the high and low nibbles of a byte."""
+
     _fields_ = [("low", c_uint8, 4), ("high", c_uint8, 4)]
 
 
 class Octect(Union):
     """
+    A union representing a single byte as either a raw value or a pair of nibbles.
+
     >>> o = Octect(Nibbles(high=1, low=0))
     >>> o.value
     16
