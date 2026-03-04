@@ -1,4 +1,4 @@
-from typing import Tuple, Union
+from typing import Union
 
 from lifx import Msg as Parent, Octect
 from lifx.lan.header import Header
@@ -71,7 +71,7 @@ class Msg(Parent):
 
     def decode(
         self,
-    ) -> Tuple[Header, Union[light.StateService, light.StatePower, light.State]]:
+    ) -> tuple[Header, Union[light.StateService, light.StatePower, light.State]]:
         """
         >>> import lifx
         >>> s = "310000340000000000000000000000000000000000000000000000000000000066000000005555FFFFFFFFAC0D00040000"

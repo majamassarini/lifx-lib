@@ -1,5 +1,6 @@
 import abc
-from typing import Iterable, Tuple, Any
+from collections.abc import Iterable
+from typing import Any
 from ctypes import c_uint8, LittleEndianStructure, Union
 
 
@@ -88,7 +89,7 @@ class Msg(abc.ABC, list):
         ...
 
     @abc.abstractmethod
-    def decode(self) -> Tuple[Any]:
+    def decode(self) -> tuple[Any]:
         ...
 
     def __bytes__(self):

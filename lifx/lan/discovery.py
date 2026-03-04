@@ -5,10 +5,10 @@ import sys
 
 import lifx
 
-from typing import Tuple, Union, Text
+from typing import Union
 
 
-Address = Tuple[str, int]
+Address = tuple[str, int]
 
 
 class Discovery(asyncio.DatagramProtocol):
@@ -20,7 +20,7 @@ class Discovery(asyncio.DatagramProtocol):
     STATE_SERVICE = "state_service"
 
     def __init__(self, remote: Address):
-        self._loop = asyncio.get_event_loop()
+        self._loop = asyncio.get_running_loop()
         self._remote = remote
         self._transport = None
 
@@ -33,7 +33,7 @@ class Discovery(asyncio.DatagramProtocol):
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         self.broadcast()
 
-    def datagram_received(self, data: Union[bytes, Text], addr: Address):
+    def datagram_received(self, data: Union[bytes, str], addr: Address):
         msg = lifx.lan.Msg.from_bytes(data)
         (header, body) = msg.decode()
         self.logger.info("{} {} from {}".format(header, body, addr))
@@ -59,7 +59,8 @@ if __name__ == "__main__":
     handler = logging.StreamHandler(sys.stdout)
     logger.addHandler(handler)
 
-    loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     coro = loop.create_datagram_endpoint(
         lambda: Discovery(("255.255.255.255", 56700)), local_addr=("0.0.0.0", 56700)
     )
