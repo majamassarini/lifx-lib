@@ -102,7 +102,7 @@ class HSBK(LittleEndianStructure):
     @property
     def rgb(self):
         """Return the color as an (R, G, B) tuple (values 0-256)."""
-        (r, g, b) = colorsys.hsv_to_rgb(
+        r, g, b = colorsys.hsv_to_rgb(
             self.hue / 65535, self.saturation / 65535, self.brightness / 65535
         )
         return int(round(r * 256)), int(round(g * 256)), int(round(b * 256))
@@ -110,8 +110,8 @@ class HSBK(LittleEndianStructure):
     @rgb.setter
     def rgb(self, rgb):
         """Set the color from an (R, G, B) tuple (values 0-256)."""
-        (r, g, b) = rgb
-        (h, s, v) = colorsys.rgb_to_hsv(r / 256, g / 256, b / 256)
+        r, g, b = rgb
+        h, s, v = colorsys.rgb_to_hsv(r / 256, g / 256, b / 256)
         self.hue = int(h * 65535)
         self.saturation = int(s * 65535)
         self.brightness = int(v * 65535)
@@ -580,7 +580,7 @@ class Description_Factory(object):
             "lifx.lan.light.GetService",
             "lifx.lan.light.StateService",
             "lifx.lan.light.State",
-        ]
+        ],
     ) -> tuple[str, dict]:
         """
         :param state: a list of bytes to be interpreted as a state
