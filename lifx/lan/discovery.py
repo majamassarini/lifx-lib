@@ -7,7 +7,6 @@ import sys
 
 import lifx
 
-
 Address = tuple[str, int]
 
 
@@ -38,7 +37,7 @@ class Discovery(asyncio.DatagramProtocol):
 
     def datagram_received(self, data: bytes, addr: Address):
         msg = lifx.lan.Msg.from_bytes(data)
-        (header, body) = msg.decode()
+        header, body = msg.decode()
         self.logger.info("{} {} from {}".format(header, body, addr))
         if body.state == self.STATE_SERVICE:
             msg = lifx.lan.Msg.encode(lifx.lan.header.make(self.GET), None)
