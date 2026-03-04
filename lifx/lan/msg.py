@@ -1,4 +1,9 @@
-from typing import Union
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Union
+
+if TYPE_CHECKING:
+    import lifx
 
 from lifx import Msg as Parent, Octect
 from lifx.lan.header import Header
@@ -23,7 +28,7 @@ class Msg(Parent):
     """
 
     @classmethod
-    def encode(
+    def encode(  # type: ignore[override]
         cls,
         header: "lifx.lan.Header",
         body: Union[
@@ -71,7 +76,9 @@ class Msg(Parent):
 
     def decode(
         self,
-    ) -> tuple[Header, Union[light.StateService, light.StatePower, light.State]]:
+    ) -> tuple[
+        Header, Union[light.StateService, light.StatePower, light.State]
+    ]:
         """
         >>> import lifx
         >>> s = "310000340000000000000000000000000000000000000000000000000000000066000000005555FFFFFFFFAC0D00040000"
@@ -95,7 +102,7 @@ class Msg(Parent):
         for index, octect in enumerate(self[0:36]):
             header.bytes[index] = octect.value
 
-        body = None
+        body: Any = None
         if header.type == Header.State.get_service:
             body = light.GetService()
         if header.type == Header.State.state_service:

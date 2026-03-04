@@ -1,6 +1,19 @@
+from __future__ import annotations
+
 import logging
-from ctypes import c_uint8, c_uint32, c_uint16, c_uint64, LittleEndianStructure, Union
+from ctypes import (
+    c_uint8,
+    c_uint32,
+    c_uint16,
+    c_uint64,
+    LittleEndianStructure,
+    Union,
+)
 from enum import IntEnum
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import lifx
 
 
 class _Header(LittleEndianStructure):
@@ -101,7 +114,7 @@ class Header(Union):
             state = self.State(self.field.type)
         except ValueError as e:
             logging.error(e)
-            state = str(self.field.type)
+            state = str(self.field.type)  # type: ignore[assignment]
         return state
 
     @type.setter

@@ -1,11 +1,11 @@
+from __future__ import annotations
+
 import asyncio
 import logging
 import socket
 import sys
 
 import lifx
-
-from typing import Union
 
 
 Address = tuple[str, int]
@@ -22,18 +22,21 @@ class Discovery(asyncio.DatagramProtocol):
     def __init__(self, remote: Address):
         self._loop = asyncio.get_running_loop()
         self._remote = remote
-        self._transport = None
+        self._transport: asyncio.transports.DatagramTransport = (
+            None  # type: ignore[assignment]
+        )
 
         self.logger = logging.getLogger(__name__)
 
-    def connection_made(self, transport: asyncio.transports.DatagramTransport):
+    def connection_made(self, transport: asyncio.transports.BaseTransport):
+        assert isinstance(transport, asyncio.transports.DatagramTransport)
         self._transport = transport
         sock = transport.get_extra_info("socket")  # type: socket.socket
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         self.broadcast()
 
-    def datagram_received(self, data: Union[bytes, str], addr: Address):
+    def datagram_received(self, data: bytes, addr: Address):
         msg = lifx.lan.Msg.from_bytes(data)
         (header, body) = msg.decode()
         self.logger.info("{} {} from {}".format(header, body, addr))
@@ -42,7 +45,9 @@ class Discovery(asyncio.DatagramProtocol):
             data = bytes(msg)
             self._transport.sendto(data, addr)
 
-            msg = lifx.lan.Msg.encode(lifx.lan.header.make(self.GET_POWER), None)
+            msg = lifx.lan.Msg.encode(
+                lifx.lan.header.make(self.GET_POWER), None
+            )
             data = bytes(msg)
             self._transport.sendto(data, addr)
 
@@ -62,7 +67,8 @@ if __name__ == "__main__":
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     coro = loop.create_datagram_endpoint(
-        lambda: Discovery(("255.255.255.255", 56700)), local_addr=("0.0.0.0", 56700)
+        lambda: Discovery(("255.255.255.255", 56700)),
+        local_addr=("0.0.0.0", 56700),
     )
     loop.run_until_complete(coro)
     loop.run_forever()

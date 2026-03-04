@@ -1,9 +1,14 @@
+from __future__ import annotations
+
 import asyncio
 import logging
 
 from collections.abc import Iterable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from lifx.lan import Msg
+
+if TYPE_CHECKING:
+    import lifx
 
 
 class Client(asyncio.DatagramProtocol):
@@ -87,5 +92,7 @@ class Client(asyncio.DatagramProtocol):
     async def write(self, msgs: Iterable["lifx.Msg"]):
         for msg in msgs:
             data = bytes(msg)
-            self._transport.sendto(data, (msg.addr, msg.port))
+            self._transport.sendto(  # type: ignore[attr-defined]
+                data, (msg.addr, msg.port)
+            )
             await asyncio.sleep(1)

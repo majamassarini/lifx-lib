@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import sys
 import inspect
 import colorsys
@@ -13,12 +15,15 @@ from ctypes import (
     LittleEndianStructure,
     Union,
 )
-from typing import Union as TUnion
+from typing import TYPE_CHECKING, Union as TUnion
+
+if TYPE_CHECKING:
+    import lifx
 
 
 class GetService(LittleEndianStructure):
 
-    _fields_ = []
+    _fields_: list = []
 
     state = "get_service"
 
@@ -57,7 +62,9 @@ class StateService(LittleEndianStructure):
         self.field.port = value
 
     def __str__(self):
-        return "StateService {{service: {}, port: {}}}".format(self.service, self.port)
+        return "StateService {{service: {}, port: {}}}".format(
+            self.service, self.port
+        )
 
 
 class HSBK(LittleEndianStructure):
@@ -156,7 +163,7 @@ class Color(Union):
 
 class Get(LittleEndianStructure):
 
-    _fields_ = []
+    _fields_: list = []
 
     state = "get_light"
 
@@ -414,7 +421,7 @@ class Power:
 
 class GetPower(LittleEndianStructure):
 
-    _fields_ = []
+    _fields_: list = []
 
     state = "get_power_light"
 
@@ -467,9 +474,7 @@ class StatePower(Power, Union):
 
 class State_Factory(object):
     @staticmethod
-    def make(
-        state: str, fields_values: dict
-    ) -> TUnion[
+    def make(state: str, fields_values: dict) -> TUnion[
         "lifx.lan.light.SetColor",
         "lifx.lan.light.SetWaveform",
         "lifx.lan.light.SetPower",
@@ -502,10 +507,10 @@ class State_Factory(object):
         89
         """
         thismodule = sys.modules[__name__]
-        state = getattr(thismodule, state)()
+        instance = getattr(thismodule, state)()
         for key, value in fields_values.items():
-            setattr(state, key, value)
-        return state
+            setattr(instance, key, value)
+        return instance
 
 
 class Description_Factory(object):
@@ -520,7 +525,7 @@ class Description_Factory(object):
             "lifx.lan.light.StateService",
             "lifx.lan.light.State",
         ]
-    ) -> dict:
+    ) -> tuple[str, dict]:
         """
         :param state: a list of bytes to be interpreted as a state
         :return a dict
@@ -545,7 +550,14 @@ class Description_Factory(object):
                 )
             ]
         ) - set(
-            ["bytes", "field", "__weakref__", "_b_base_", "_b_needsfree_", "_objects"]
+            [
+                "bytes",
+                "field",
+                "__weakref__",
+                "_b_base_",
+                "_b_needsfree_",
+                "_objects",
+            ]
         )
         for name in fields:
             field = state.__getattribute__(name)
