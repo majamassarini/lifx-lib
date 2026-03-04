@@ -13,7 +13,7 @@ from ctypes import (
     LittleEndianStructure,
     Union,
 )
-from typing import Dict, Union as TUnion
+from typing import Union as TUnion
 
 
 class GetService(LittleEndianStructure):
@@ -468,7 +468,7 @@ class StatePower(Power, Union):
 class State_Factory(object):
     @staticmethod
     def make(
-        state: str, fields_values: Dict
+        state: str, fields_values: dict
     ) -> TUnion[
         "lifx.lan.light.SetColor",
         "lifx.lan.light.SetWaveform",
@@ -520,7 +520,7 @@ class Description_Factory(object):
             "lifx.lan.light.StateService",
             "lifx.lan.light.State",
         ]
-    ) -> Dict:
+    ) -> dict:
         """
         :param state: a list of bytes to be interpreted as a state
         :return a dict
