@@ -1,12 +1,20 @@
+from __future__ import annotations
+
 import abc
 from collections.abc import Iterable
-from typing import Any
+from typing import TYPE_CHECKING
 from ctypes import c_uint8, LittleEndianStructure, Union
+
+if TYPE_CHECKING:
+    import lifx
 
 
 class Msg(abc.ABC, list):
     def __init__(
-        self, octects: Iterable["lifx.Octect"], addr: str = None, port: int = None
+        self,
+        octects: Iterable["lifx.Octect"],
+        addr: str = None,
+        port: int = None,
     ):
         """
         A list of lifx.Octect optionally linked to a IP (addr, port)
@@ -20,7 +28,9 @@ class Msg(abc.ABC, list):
         self._port = port
 
     @classmethod
-    def from_string(cls, s: str, addr: str = None, port: int = None) -> "lifx.Msg":
+    def from_string(
+        cls, s: str, addr: str = None, port: int = None
+    ) -> "lifx.Msg":
         """
         >>> import lifx
         >>> s = "310000340000000000000000000000000000000000000000000000000000000066000000005555FFFFFFFFAC0D00040000"
@@ -44,7 +54,9 @@ class Msg(abc.ABC, list):
         high_nibbles = [
             int(nibble, 16) for index, nibble in enumerate(s) if not index % 2
         ]
-        low_nibbles = [int(nibble, 16) for index, nibble in enumerate(s) if index % 2]
+        low_nibbles = [
+            int(nibble, 16) for index, nibble in enumerate(s) if index % 2
+        ]
         return cls(
             map(
                 lambda high_nibble, low_nibble: Octect(
@@ -58,7 +70,9 @@ class Msg(abc.ABC, list):
         )
 
     @classmethod
-    def from_bytes(cls, byts: bytes, addr: str = None, port: int = None) -> "lifx.Msg":
+    def from_bytes(
+        cls, byts: bytes, addr: str = None, port: int = None
+    ) -> "lifx.Msg":
         """
         >>> import lifx
         >>> bts = bytes([0xFF, 0xFE, 0xFD])
@@ -84,13 +98,15 @@ class Msg(abc.ABC, list):
     @classmethod
     @abc.abstractmethod
     def encode(
-        cls, header: "lifx.Msg", body: "lifx.Msg", addr: str = None, port: int = None
-    ) -> "lifx.Msg":
-        ...
+        cls,
+        header: "lifx.Msg",
+        body: "lifx.Msg",
+        addr: str = None,
+        port: int = None,
+    ) -> "lifx.Msg": ...
 
     @abc.abstractmethod
-    def decode(self) -> tuple[Any]:
-        ...
+    def decode(self) -> tuple: ...
 
     def __bytes__(self):
         return bytes([octect.value for octect in self])
