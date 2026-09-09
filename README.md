@@ -1,7 +1,7 @@
 # lifx-lib
 
-[![Build Status](https://travis-ci.com/majamassarini/lifx-lib.svg?branch=master)](https://travis-ci.com/majamassarini/lifx-lib)
-[![codecov](https://codecov.io/gh/majamassarini/lifx-lib/branch/master/graph/badge.svg?token=HQ27JK26MT)](https://codecov.io/gh/majamassarini/lifx-lib)
+[![Unit Tests](https://github.com/majamassarini/lifx-lib/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/majamassarini/lifx-lib/actions/workflows/build.yml)
+[![codecov](https://codecov.io/gh/majamassarini/lifx-lib/branch/main/graph/badge.svg)](https://codecov.io/gh/majamassarini/lifx-lib)
 [![Documentation Status](https://readthedocs.org/projects/lifx-lib/badge/?version=latest)](https://lifx-lib.readthedocs.io/en/latest/?badge=latest)
 
 A Python 3 library able to encode/decode Lifx (lan) messages.
